@@ -67,7 +67,6 @@ public class AlimentsFCRUD implements InterfaceAliments {
     }  
     @Override
     public void supprimeraliments(int id)throws SQLException {
-//        String req = "DELETE FROM Aliments WHERE id="+id;
         try {
             PreparedStatement pst = con.prepareStatement("DELETE FROM Aliments WHERE id="+id);
             pst.executeUpdate();

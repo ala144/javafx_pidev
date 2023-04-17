@@ -13,6 +13,7 @@ public class Aliments {
     private String nom;
     private float glucides,proteins,calories;
     private String imagepath;
+    private Boolean selected;
 
     public Aliments() {
     }
@@ -46,6 +47,7 @@ public class Aliments {
         this.proteins = proteins;
         this.calories = calories;
         this.imagepath = imagepath;
+        
     }
     
 
@@ -100,6 +102,26 @@ public class Aliments {
     public void setImagepath(String imagepath) {
         this.imagepath = imagepath;
     }
+
+    public Aliments(int id, String nom, float glucides, float proteins, float calories, String imagepath, Boolean selected) {
+        this.id = id;
+        this.nom = nom;
+        this.glucides = glucides;
+        this.proteins = proteins;
+        this.calories = calories;
+        this.imagepath = imagepath;
+        this.selected = selected;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+        
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
+    }
+    
 
     @Override
     public String toString() {

@@ -3,11 +3,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
  */
 package controllers;
+
 import GUI.getData;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import java.sql.SQLException;
 import services.AlimentsFCRUD;
 import entities.Aliments;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Statement;
@@ -17,14 +20,19 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -44,7 +52,7 @@ public class AlimentsController implements Initializable {
 
     @FXML
     private Button ajoutbtn;
-    
+
     @FXML
     private TextField caloriest;
 
@@ -58,7 +66,6 @@ public class AlimentsController implements Initializable {
     private TextField proteinst;
     private Connection con;
 
-    
     @FXML
     private Button imagebtn;
     @FXML
@@ -89,6 +96,9 @@ public class AlimentsController implements Initializable {
     private Button viderid;
     @FXML
     private ImageView imageiv;
+    @FXML
+    private TextArea rechercher;
+
     /**
      * Initializes the controller class.
      */
@@ -100,54 +110,52 @@ public class AlimentsController implements Initializable {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
-    }    
+    }
 
-@FXML
+    @FXML
     void add(ActionEvent event) throws SQLException {
         AlimentsFCRUD s = new AlimentsFCRUD();
         String uri = getData.path;
         uri = uri.replace("\\", "\\\\");
         Aliments a = new Aliments(
-        nomt.getText(),
-        Float.parseFloat(glucidest.getText()),
-        Float.parseFloat(proteinst.getText()),
-        Float.parseFloat(caloriest.getText()),
-        uri); // set the image path to an empty string for now
+                nomt.getText(),
+                Float.parseFloat(glucidest.getText()),
+                Float.parseFloat(proteinst.getText()),
+                Float.parseFloat(caloriest.getText()),
+                uri); // set the image path to an empty string for now
         // call the AlimentsService to insert the new object to the database
-        try{
-             Alert alert;
-         if (nomt.getText().isEmpty() || glucidest.getText().isEmpty()|| proteinst.getText().isEmpty()|| caloriest.getText().isEmpty() || getData.path == null || "".equals(getData.path)) {
-        // If any of the input fields are empty, show an error message
-         alert = new Alert(Alert.AlertType.ERROR);
+        try {
+            Alert alert;
+            if (nomt.getText().isEmpty() || glucidest.getText().isEmpty() || proteinst.getText().isEmpty() || caloriest.getText().isEmpty() || getData.path == null || "".equals(getData.path)) {
+                // If any of the input fields are empty, show an error message
+                alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Message d'erreur");
                 alert.setHeaderText(null);
                 alert.setContentText("Veuillez remplir tous les champs");
                 alert.showAndWait();
-         }if (Float.parseFloat(glucidest.getText())<0||Float.parseFloat(proteinst.getText())<=0 ||Float.parseFloat(caloriest.getText())<=0 ) {
-        // If any of the input fields are empty, show an error message
-         alert = new Alert(Alert.AlertType.ERROR);
+            }
+            if (Float.parseFloat(glucidest.getText()) < 0 || Float.parseFloat(proteinst.getText()) <= 0 || Float.parseFloat(caloriest.getText()) <= 0) {
+                // If any of the input fields are empty, show an error message
+                alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Message d'erreur");
                 alert.setHeaderText(null);
                 alert.setContentText("les aliments ne doivent pas etre null oui negative");
                 alert.showAndWait();
-         }
-         
-         else{
-        s.ajouteraliments(a);
-        System.out.println("Aliment ajouté avec succès !");
+            } else {
+                s.ajouteraliments(a);
+                System.out.println("Aliment ajouté avec succès !");
 //      
-        
-        
-        AlimentsShowListData();
-         }
-        }catch (Exception e) {
+
+                AlimentsShowListData();
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
 //        
 //        
 
     }
-    
+
     @FXML
     private void insererImage(ActionEvent event) {
         FileChooser open = new FileChooser();
@@ -156,21 +164,20 @@ public class AlimentsController implements Initializable {
         if (file != null) {
             getData.path = file.getAbsolutePath();
 
-            
-            
         }
-        
+
     }
+
     public ObservableList<Aliments> AlimentsListData() throws SQLException {
 
         return new AlimentsFCRUD().afficheraliments();
     }
-    
+
     private ObservableList<Aliments> AlimentsList;
-    
+
     public void AlimentsShowListData() throws SQLException {
         AlimentsList = AlimentsListData();
-        
+
         idcol.setCellValueFactory(new PropertyValueFactory<>("id"));
 
         nom_col.setCellValueFactory(new PropertyValueFactory<>("nom"));
@@ -178,46 +185,48 @@ public class AlimentsController implements Initializable {
         proteines_col.setCellValueFactory(new PropertyValueFactory<>("proteins"));
         calories_col.setCellValueFactory(new PropertyValueFactory<>("calories"));
         image_col.setCellValueFactory(new PropertyValueFactory<>("imagepath"));
-       
-        
 
         aliments_table.setItems(AlimentsList);
-        
+        search();
 
     }
 
-@FXML
+    @FXML
     private void edit(ActionEvent event) {
         String uri = getData.path;
         uri = uri.replace("\\", "\\\\");
-        
+
         String uri2 = getData.path;
         uri2 = uri2.replace("\\", "\\\\");
 
-        
-
         String req = "UPDATE Aliments SET nom = '"
-                +nomt.getText() + "', glucides = '"
+                + nomt.getText() + "', glucides = '"
                 + glucidest.getText() + "', proteins = '"
                 + proteinst.getText() + "', calories = '"
                 + caloriest.getText() + "', imagepath = '"
                 + uri + "' WHERE id ='"
                 + idt.getText() + "'";
 
-       
-            con = DataBase.getInstance().getConnection();
-         try {
+        con = DataBase.getInstance().getConnection();
+        try {
             Alert alert;
-            if (
-                     nomt.getText().isEmpty()
+            if (nomt.getText().isEmpty()
                     || glucidest.getText().isEmpty()
                     || proteinst.getText().isEmpty()
-                    ||caloriest.getText().isEmpty()
+                    || caloriest.getText().isEmpty()
                     || getData.path == null || getData.path == "") {
                 alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Message d'erreur");
                 alert.setHeaderText(null);
                 alert.setContentText("Veuillez remplir tous les champs");
+                alert.showAndWait();
+            }
+            if (Float.parseFloat(glucidest.getText()) < 0 || Float.parseFloat(proteinst.getText()) <= 0 || Float.parseFloat(caloriest.getText()) <= 0) {
+                // If any of the input fields are empty, show an error message
+                alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Message d'erreur");
+                alert.setHeaderText(null);
+                alert.setContentText("les aliments ne doivent pas etre null oui negative");
                 alert.showAndWait();
             } else {
                 alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -237,7 +246,7 @@ public class AlimentsController implements Initializable {
                     alert.showAndWait();
 
                     AlimentsShowListData();
-                    
+
                 }
 
             }
@@ -248,19 +257,19 @@ public class AlimentsController implements Initializable {
     }
 
     @FXML
-    private void delete(ActionEvent event)throws SQLException{
-        Aliments m=aliments_table.getSelectionModel().getSelectedItem();
-        if (m!=null){
-            AlimentsFCRUD a=new AlimentsFCRUD();
+    private void delete(ActionEvent event) throws SQLException {
+        Aliments m = aliments_table.getSelectionModel().getSelectedItem();
+        if (m != null) {
+            AlimentsFCRUD a = new AlimentsFCRUD();
             a.supprimeraliments(m.getId());
             AlimentsShowListData();
-            
-        }else{
+
+        } else {
             System.out.println("aucun aliment selectionné");
         }
 //        reset();
     }
-    
+
     @FXML
     public void AlimentsSelect() {
         Aliments m = aliments_table.getSelectionModel().getSelectedItem();
@@ -274,22 +283,18 @@ public class AlimentsController implements Initializable {
 
         nomt.setText(m.getNom());
         glucidest.setText(String.valueOf(m.getGlucides()));
-        
+
         caloriest.setText(String.valueOf(m.getCalories()));
         proteinst.setText(String.valueOf(m.getProteins()));
-        
-    
+
         getData.path = m.getImagepath();
 
         String uri = "file:" + m.getImagepath();
 
-        Image image = new Image(uri,101,127,false,true);
-        
-        imageiv.setImage(image);
-        
-        
+        Image image = new Image(uri, 101, 127, false, true);
 
-        
+        imageiv.setImage(image);
+
     }
 
     @FXML
@@ -298,10 +303,37 @@ public class AlimentsController implements Initializable {
         glucidest.setText("");
         proteinst.setText("");
         caloriest.setText("");
-        getData.path="";
+        getData.path = "";
     }
 
+    private void search() {
 
-    
-   
+        FilteredList<Aliments> filteredData = new FilteredList<>(AlimentsList, b -> true);
+        rechercher.textProperty().addListener((observable, oldValue, newValue) -> {
+
+            filteredData.setPredicate(User -> {
+
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (String.valueOf(User.getNom()).indexOf(lowerCaseFilter) != -1) {
+                    return true;
+                } else if (Float.toString(User.getGlucides()).indexOf(lowerCaseFilter) != -1) {
+                    return true;
+                } 
+                else if (Float.toString(User.getCalories()).indexOf(lowerCaseFilter) != -1) {
+                    return true;
+                } 
+                else {
+                    return false;
+                }
+            });
+        });
+        SortedList<Aliments> sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(aliments_table.comparatorProperty());
+        aliments_table.setItems(sortedData);
+    }
 }

@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
@@ -52,7 +53,7 @@
                   <TextField fx:id="glucidest" layoutX="10.0" layoutY="222.0" />
                   <TextField fx:id="caloriest" layoutX="10.0" layoutY="351.0" />
                   <TextField fx:id="proteinst" layoutX="9.0" layoutY="287.0" />
-                  <Text fx:id="ajoutid" fontSmoothingType="LCD" layoutX="302.0" layoutY="64.0" strokeLineJoin="ROUND" strokeType="OUTSIDE" strokeWidth="0.0" text="Ajout d'un aliment">
+                  <Text fx:id="ajoutid" fontSmoothingType="LCD" layoutX="302.0" layoutY="64.0" strokeLineJoin="ROUND" strokeType="OUTSIDE" strokeWidth="0.0" text="Ajout d'aliment">
                      <font>
                         <Font name="System Bold" size="25.0" />
                      </font>
@@ -121,6 +122,7 @@
                         <ImageView fx:id="imageiv" fitHeight="85.0" fitWidth="98.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true" />
                      </children>
                   </AnchorPane>
+                  <TextArea fx:id="rechercher" layoutX="12.0" layoutY="81.0" prefHeight="26.0" prefWidth="294.0" promptText="Recherche..." />
                </children>
                <styleClass>
                   <String fx:value="white-bg" />
